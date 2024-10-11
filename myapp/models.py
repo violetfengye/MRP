@@ -50,3 +50,33 @@ class Inventory(models.Model):
 
     def __str__(self):
         return f"{self.material_name} 库存"
+
+
+class MPS(models.Model):
+    material_code = models.CharField(max_length=10, verbose_name="物料号")
+    quantity = models.IntegerField(verbose_name="数量")
+    date = models.DateField(verbose_name="日期")
+
+    def __str__(self):
+        return f"{self.material_code} - {self.quantity} - {self.date}"
+
+
+class MPSRecord(models.Model):
+    material_code = models.CharField(max_length=10, verbose_name="物料编号")
+    required_quantity = models.IntegerField(verbose_name="需求数量")
+    due_date = models.DateField(verbose_name="需求日期")
+
+    def __str__(self):
+        return f"{self.material_code} - {self.quantity} on {self.date}"
+
+
+class PurchasePlan(models.Model):
+    material_code = models.CharField(max_length=10, verbose_name="物料号")
+    quantity = models.IntegerField(verbose_name="采购数量")
+    date = models.DateField(verbose_name="计划日期")
+
+
+class ProductionPlan(models.Model):
+    material_code = models.CharField(max_length=10, verbose_name="物料号")
+    quantity = models.IntegerField(verbose_name="生产数量")
+    date = models.DateField(verbose_name="计划日期")

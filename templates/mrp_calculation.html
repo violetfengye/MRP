@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MRP Calculation</title>
+</head>
+<body>
+<h2>MRP Calculation Results</h2>
+<table>
+    <tr>
+        <th>物料编号</th>
+        <th>需求数量</th>
+        <th>净需求量</th>
+    </tr>
+    {% for code, item in material_requirements.items %}
+    <tr>
+        <td>{{ code }}</td>
+        <td>{{ item.required_quantity }}</td>
+        <td>{{ item.net_requirement }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

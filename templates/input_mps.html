@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>输入 MPS</title>
+</head>
+<body>
+    <h1>输入 MPS 记录</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">提交</button>
+    </form>
+</body>
+</html>
