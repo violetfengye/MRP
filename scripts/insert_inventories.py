@@ -10,8 +10,9 @@ django.setup()
 from myapp.models import Inventory
 
 
-#批量插入库存表的数据
+# 批量插入库存表的数据
 def insert_inventories():
+    # 定义要插入的库存数据
     inventories = [
         {'material_code': '20000', 'material_name': '眼镜', 'workshop_stock': 0, 'material_stock': 0},
         {'material_code': '20109', 'material_name': '螺钉', 'workshop_stock': 10, 'material_stock': 50},
@@ -22,6 +23,7 @@ def insert_inventories():
         {'material_code': '20300', 'material_name': '镜片', 'workshop_stock': 0, 'material_stock': 0},
     ]
 
+    # 将数据插入 Inventory 表中
     for item in inventories:
         Inventory.objects.create(
             material_code=item['material_code'],
@@ -30,9 +32,9 @@ def insert_inventories():
             material_inventory=item['material_stock'],
         )
 
-    print("库存数据插入成功！")
+    print("库存数据插入成功！")  # 输出插入成功消息
 
 
 # 执行插入操作
 if __name__ == '__main__':
-    insert_inventories()
+    insert_inventories()  # 运行插入函数

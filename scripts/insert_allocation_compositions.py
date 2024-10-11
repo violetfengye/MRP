@@ -10,6 +10,7 @@ from myapp.models import AllocationComposition
 
 
 def insert_allocation_compositions():
+    # 定义要插入的调配构成数据
     allocations = [
         {'base_code': '000001', 'region_code': 'L001', 'parent_material_code': '20000', 'parent_material_name': '眼镜',
          'child_material_code': '20100', 'child_material_name': '镜框', 'quantity': 1, 'allocation_lead_time': 0,
@@ -34,6 +35,7 @@ def insert_allocation_compositions():
          'supplier_lead_time': 10}
     ]
 
+    # 插入数据到 AllocationComposition 表中
     for allocation in allocations:
         AllocationComposition.objects.create(
             base_code=allocation['base_code'],
@@ -47,7 +49,8 @@ def insert_allocation_compositions():
             supplier_lead_time=allocation['supplier_lead_time']
         )
 
-print("调配构成数据插入成功！")
+    print("调配构成数据插入成功！")  # 输出插入成功消息
+
 
 if __name__ == '__main__':
-    insert_allocation_compositions()
+    insert_allocation_compositions()  # 运行插入函数
