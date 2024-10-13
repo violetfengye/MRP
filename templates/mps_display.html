@@ -59,7 +59,7 @@
                         <td>{{ record.mps_id }}</td>
                         <td>{{ record.material_name }}</td>
                         <td>{{ record.required_quantity }}</td>
-                        <td>{{ record.due_date }}</td>
+                        <td>{{ record.due_date|date:"Y-m-d" }}</td>
                         <td>
                             <form action="{% url 'delete_mps_record' record.mps_id %}" method="post">
                                 {% csrf_token %}

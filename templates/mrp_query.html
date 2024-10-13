@@ -33,7 +33,7 @@
                     <td>{{ mps.mps_id }}</td>
                     <td>{{ mps.material_name }}</td>
                     <td>{{ mps.required_quantity }}</td>
-                    <td>{{ mps.due_date }}</td>
+                    <td>{{ mps.due_date|date:"Y-m-d" }}</td>
                 </tr>
                 {% empty %}
                 <tr>

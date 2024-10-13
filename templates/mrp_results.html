@@ -55,8 +55,8 @@
                     <td>{{ item.material_code }}</td>
                     <td>{{ item.material_name }}</td>
                     <td>{{ item.required_quantity }}</td>
-                    <td>{{ item.start_date }}</td>
-                    <td>{{ item.completion_date }}</td>
+                    <td>{{ item.start_date|date:"Y-m-d" }}</td>
+                    <td>{{ item.completion_date|date:"Y-m-d" }}</td>
                 </tr>
                 {% endfor %}
             {% endfor %}
