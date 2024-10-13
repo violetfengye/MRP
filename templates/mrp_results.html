@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>MRP Calculation Results</title>
+    <title>MRP 计算结果</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f9f9f9;
         }
-        h1 {
+        h2 {
             color: #333;
         }
         table {
@@ -30,30 +31,33 @@
     </style>
 </head>
 <body>
-    <h1>MRP Calculation Results</h1>
+    <h1>MRP 计算结果</h1>
+
+{% if mrp_results %}
     <table>
-        <thead>
-            <tr>
-                <th>物料编号</th>
-                <th>需求数量</th>
-                <th>净需求量</th>
-                <th>配料提前期</th>
-                <th>供应商提前期</th>
-                <th>需求日期</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for result in results %}
-            <tr>
-                <td>{{ result.material_code }}</td>
-                <td>{{ result.required_quantity }}</td>
-                <td>{{ result.net_requirement }}</td>
-                <td>{{ result.allocation_lead_time }}</td>
-                <td>{{ result.supplier_lead_time }}</td>
-                <td>{{ result.due_date }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <tr>
+        <th>调配方式</th>
+        <th>物料号</th>
+        <th>物料名称</th>
+        <th>需求数量</th>
+        <th>日程下达日期</th>
+        <th>日程完成日期</th>
+    </tr>
+    {% for result in mrp_results %}
+    <tr>
+        <td>{{ result.allocation_method }}</td>
+        <td>{{ result.material_code }}</td>
+        <td>{{ result.material_name }}</td>
+        <td>{{ result.required_quantity }}</td>
+        <td>{{ result.start_date }}</td>
+        <td>{{ result.completion_date }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% else %}
+    <p>没有 MRP 计算结果。</p>
+{% endif %}
+
 </body>
 </html>

@@ -7,7 +7,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
 django.setup()
 
-from myapp.models import Inventory
+from myapp.models import Inventory, Material
 
 
 # 批量插入库存表的数据
@@ -25,8 +25,11 @@ def insert_inventories():
 
     # 将数据插入 Inventory 表中
     for item in inventories:
+        # 获取物料的实例
+        material = Material.objects.get(material_id=item['material_code'])
+
         Inventory.objects.create(
-            material_code=item['material_code'],
+            material_code=material,  # 使用外键指向 Material 表中的实例
             material_name=item['material_name'],
             workshop_inventory=item['workshop_stock'],
             material_inventory=item['material_stock'],

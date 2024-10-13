@@ -1,0 +1,9 @@
+<form method="POST">
+    {% csrf_token %}
+    <label for="mps_id">请输入 MPS 记录 ID：</label>
+    <input type="text" id="mps_id" name="mps_id" required>
+    <button type="submit">查询</button>
+</form>
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}

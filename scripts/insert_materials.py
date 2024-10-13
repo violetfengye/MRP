@@ -26,7 +26,7 @@ def insert_materials():
     # 将物料数据插入 Material 表中
     for item in materials:
         Material.objects.create(
-            material_code=item['material_code'],
+            material_id=item['material_code'],  # 使用 material_id 作为物料号
             name=item['name'],
             unit=item['unit'],
             allocation_method=item['allocation_method'],

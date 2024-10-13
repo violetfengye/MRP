@@ -1,14 +1,40 @@
-<form method="post"> <!-- 提交方式为 POST -->
-    {% csrf_token %} <!-- CSRF 保护令牌 -->
-    {{ formset.management_form }} <!-- 渲染管理表单 -->
-    
-    <table>
-        {{ formset.as_table }} <!-- 渲染表单集为表格形式 -->
-    </table>
-    
-    <div style="margin-top: 20px;">
-        <button type="submit" style="padding: 10px 15px; font-size: 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
-            提交
-        </button> <!-- 提交按钮 -->
-    </div>
-</form>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>输入 MPS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>输入 MPS 记录</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">提交</button>
+    </form>
+</body>
+</html>

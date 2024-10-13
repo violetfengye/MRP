@@ -49,12 +49,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to the MRP System</h1>
-        <p>Select an action below:</p>
+        <h1>这是一个简单的MRP计算程序</h1>
+        <p>请选择下列功能</p>
         <div class="button-container">
-            <button onclick="window.location.href='{% url 'input_mps' %}'">Add MPS Record</button>
-            <button onclick="window.location.href='{% url 'mps_input' %}'">Save MPS Records</button>
-            <button onclick="window.location.href='{% url 'mrp_calculation' %}'">Show MRP Results</button>
+            <button onclick="window.location.href='{% url 'mps_input' %}'">添加一条MPS记录</button>
+            <button onclick="window.location.href='{% url 'mrp_query' %}'">查询 MRP 计算结果</button>
         </div>
     </div>
 </body>
