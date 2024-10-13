@@ -102,7 +102,8 @@ def calculate_mrp_for_multiple(mps_records):
     for mps_record in mps_records_sorted:
         try:
             # 执行MRP计算
-            mrp_results = calculate_material_requirements(mps_record.material_name, mps_record.required_quantity, mps_record.due_date)
+            mrp_results = calculate_material_requirements(mps_record.material_name, mps_record.required_quantity,
+                                                          mps_record.due_date)
             all_mrp_results.append({
                 'mps_id': mps_record.mps_id,
                 'mrp_results': mrp_results
@@ -113,7 +114,6 @@ def calculate_mrp_for_multiple(mps_records):
 
     allinventories.clear()  # 清空缓存
     return all_mrp_results
-
 
 
 # 需求计算函数，使用已经加载的 allinventories 字典
@@ -171,8 +171,53 @@ def calculate_material_requirements(material, required_quantity, due_date):
         child_quantity = allo.quantity
         required_child_quantity = math.ceil(required_quantity * child_quantity / (1 - child_material.loss_rate))
 
-        child_material_mrp_results = calculate_material_requirements(child_material, required_child_quantity, start_date)
+        child_material_mrp_results = calculate_material_requirements(child_material, required_child_quantity,
+                                                                     start_date)
 
         material_mrp_results.extend(child_material_mrp_results)
 
     return material_mrp_results
+
+
+def inventories_display(request):
+    allinventories = Inventory.objects.all()
+    return render(request, 'inventories_display.html', {'allinventories': allinventories})
+
+
+def update_inventory(request, inventory_id):
+    inventory = get_object_or_404(Inventory, material_name=inventory_id)
+
+    if request.method == 'POST':
+        # 获取表单数据，并进行验证
+        workshop_inventory = request.POST.get('workshop_inventory')
+        material_inventory = request.POST.get('material_inventory')
+
+        if workshop_inventory is not None and material_inventory is not None:
+            try:
+                # 尝试将其转换为整数
+                inventory.workshop_inventory = int(workshop_inventory)
+                inventory.material_inventory = int(material_inventory)
+                inventory.save()
+
+                messages.success(request, f'库存 {inventory.material_name} 已更新成功！')
+                return redirect('inventories_display')  # 重定向回到库存查看页面
+
+            except ValueError:
+                messages.error(request, '无效的库存输入，请输入有效的数字。')
+
+        else:
+            messages.error(request, '库存字段不能为空！')
+
+    return render(request, 'inventories_display.html', {'inventory': inventory})
+
+
+def delete_inventory(request, inventory_id):
+    # 获取要删除的库存记录
+    inventory = get_object_or_404(Inventory, id=inventory_id)
+
+    if request.method == 'GET':
+        inventory.delete()
+        messages.success(request, f'库存 {inventory.material_name} 已删除成功！')
+        return redirect('warehouse_view')  # 重定向回到库存查看页面
+
+

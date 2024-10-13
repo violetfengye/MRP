@@ -75,25 +75,3 @@ class MPSRecord(models.Model):
         return f"MPS: {self.mps_id} - {self.material_name} - {self.due_date}"
 
 
-# 采购计划模型
-class PurchasePlan(models.Model):
-    material_code = models.ForeignKey('Material', on_delete=models.CASCADE, verbose_name="物料号",
-                                      to_field='material_id', related_name="purchase_plans")
-    name = models.CharField(max_length=10, primary_key=True, verbose_name="物料名称")
-    quantity = models.IntegerField(verbose_name="采购数量")
-    date = models.DateField(verbose_name="计划日期")
-
-    def __str__(self):
-        return f"Purchase Plan: {self.name} - {self.quantity} on {self.date}"
-
-
-# 生产计划模型
-class ProductionPlan(models.Model):
-    material_code = models.ForeignKey('Material', on_delete=models.CASCADE, verbose_name="物料号",
-                                      to_field='material_id', related_name="production_plans")
-    name = models.CharField(max_length=10, primary_key=True, verbose_name="物料名称")
-    quantity = models.IntegerField(verbose_name="生产数量")
-    date = models.DateField(verbose_name="计划日期")
-
-    def __str__(self):
-        return f"Production Plan: {self.name} - {self.quantity} on {self.date}"

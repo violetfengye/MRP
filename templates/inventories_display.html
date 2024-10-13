@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>仓库记录</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .btn {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>仓库详细</h1>
+
+    <!-- 显示成功或失败的消息 -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if allinventories %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>物料号</th>
+                <th>物料名称</th>
+                <th>工序库存</th>
+                <th>资材库存</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inventory in allinventories %}
+                <tr>
+    <form method="POST" action="{% if inventory.material_name %}{% url 'update_inventory' inventory.material_name %}{% endif %}">
+        {% csrf_token %}
+        <td>{{ inventory.material_code }}</td>
+        <td>{{ inventory.material_name }}</td>
+        <td><input type="number" name="workshop_inventory" value="{{ inventory.workshop_inventory }}"></td>
+        <td><input type="number" name="material_inventory" value="{{ inventory.material_inventory }}"></td>
+        <td>
+            <button type="submit" class="btn" {% if not inventory.material_name %}disabled{% endif %}>保存修改</button>
+            
+        </td>
+    </form>
+</tr>
+
+
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>没有找到库存记录。</p>
+    {% endif %}
+</body>
+
+</html>

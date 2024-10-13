@@ -10,6 +10,9 @@ urlpatterns = [
     path('mrp_results/<str:mps_ids>/', views.mrp_results, name='mrp_results'),
     path('mps_display', views.mps_display, name='mps_display'),
     path('delete_mps/<int:mps_id>/', views.delete_mps_record, name='delete_mps_record'),
+    path('inventories_display', views.inventories_display, name='inventories_display'),
+    path('update_inventory/<str:inventory_id>/', views.update_inventory, name='update_inventory'),
+    path('delete_inventory/<str:inventory_id>/', views.delete_inventory, name='delete_inventory'),
 
     # Add other paths as necessary
 ]
