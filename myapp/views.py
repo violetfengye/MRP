@@ -82,7 +82,7 @@ def calculate_mrp(mps_record):
     # 这里的 mrp_final_results 是整个 MRP 计算的最终结果，包括所有物料的需求信息
     mrp_final_results = calculate_material_requirements(material, required_quantity, due_date)
 
-    # 清空字典，准备重新填充
+    # 清空字典
     allinventories.clear()
 
     return mrp_final_results
