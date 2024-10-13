@@ -72,12 +72,12 @@ def calculate_mrp(mps_record):
     # 创建一个仓库表映射，加载一次库存数据
     load_all_inventory()
 
-    # 清空字典，准备重新填充
-    allinventories.clear()
-
     # 递归计算需求
     # 这里的 mrp_final_results 是整个 MRP 计算的最终结果，包括所有物料的需求信息
     mrp_final_results = calculate_material_requirements(material, required_quantity, due_date)
+
+    # 清空字典，准备重新填充
+    allinventories.clear()
 
     return mrp_final_results
 
@@ -90,49 +90,63 @@ def calculate_material_requirements(material, required_quantity, due_date):
     allo_records = AllocationComposition.objects.filter(parent_material_name=material.name)
 
     if not allo_records.exists():
-        # 如果当前物料没有子物料，返回空的 material_mrp_results
-        return material_mrp_results
+        # 如果当前物料没有子物料
 
-    for allo in allo_records:
+        # 从字典中获取库存信息
+        current_inventory = allinventories.get(material, 0)
 
-        child_material = allo.child_material_code
-        child_quantity = allo.quantity
-
-        # 计算子物料的需求数量
-        required_child_quantity = math.ceil(required_quantity * child_quantity / (1 - child_material.loss_rate))
-
-        # # 从字典中获取库存信息
-        # current_inventory = allinventories.get(child_material.material_id, 0)
-        #
-        # # 减去库存
-        # required_child_quantity -= current_inventory
-        #
-        # # 确保需求数量不为负数
-        # required_child_quantity = max(0, required_child_quantity)
+        if current_inventory:
+            if current_inventory > required_quantity:
+                allinventories[material] -= required_quantity
+                required_quantity = 0
+            else:
+                required_quantity -= current_inventory
+                allinventories[material] = 0
 
         # 根据调配方式计算日期
-        if child_material.allocation_method == '生产':
+        if material.allocation_method == '生产':
             completion_date = due_date
-            start_date = completion_date - timedelta(days=child_material.lead_time)
-        elif child_material.allocation_method == '采购':
+            start_date = completion_date - timedelta(days=material.lead_time)
+        elif material.allocation_method == '采购':
             completion_date = due_date
+            allomaterial = AllocationComposition.objects.filter(child_material_name=material.name).first()
             start_date = completion_date - timedelta(
-                days=child_material.lead_time + allo.allocation_lead_time + allo.supplier_lead_time)
+                days=material.lead_time + allomaterial.allocation_lead_time + allomaterial.supplier_lead_time)
 
-        # 该 material_mrp_results 用于记录当前子物料的 MRP 计算结果
         material_mrp_results.append({
-            'allocation_method': child_material.allocation_method,
-            'material_code': child_material.material_id,
-            'material_name': child_material.name,
-            'required_quantity': required_child_quantity,
+            'allocation_method': material.allocation_method,
+            'material_code': material.material_id,
+            'material_name': material.name,
+            'required_quantity': required_quantity,
             'start_date': start_date,
             'completion_date': completion_date
         })
 
+        return material_mrp_results
+
+    # 既然有子物料，那么一定是生产方式
+    completion_date = due_date
+    start_date = completion_date - timedelta(days=material.lead_time)
+
+    material_mrp_results.append({
+        'allocation_method': material.allocation_method,
+        'material_code': material.material_id,
+        'material_name': material.name,
+        'required_quantity': required_quantity,
+        'start_date': start_date,
+        'completion_date': completion_date
+    })
+
+    for allo in allo_records:
+        child_material = allo.child_material_code
+        child_quantity = allo.quantity
+        # 计算子物料的需求数量
+        required_child_quantity = math.ceil(required_quantity * child_quantity / (1 - child_material.loss_rate))
         # 递归计算子物料的需求
         # 该 child_material_mrp_results 存储子物料的 MRP 计算结果，然后被添加到 material_mrp_results 中
         child_material_mrp_results = calculate_material_requirements(child_material, required_child_quantity,
                                                                      start_date)
+
         material_mrp_results.extend(child_material_mrp_results)
 
     return material_mrp_results  # 返回当前物料及其子物料的 MRP 计算结果
