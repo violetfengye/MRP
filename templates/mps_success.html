@@ -6,30 +6,54 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
             text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #4CAF50;
+            color: #333;
         }
-        p {
-            font-size: 1.2em;
-            margin: 20px 0;
+        .button-container {
+            margin-top: 20px;
         }
-        a {
-            text-decoration: none;
-            color: #007BFF;
-            font-weight: bold;
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
         }
-        a:hover {
-            text-decoration: underline;
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:focus {
+            outline: none;
         }
     </style>
 </head>
 <body>
+    <div class="container">
     <h1>保存成功！</h1>
     <p>您的 MPS 记录已成功保存。</p>
-    <a href="{% url 'main_page' %}">返回输入页面</a>
+    <div class="button-container">
+            <button onclick="window.location.href='{% url 'mps_input' %}'">继续添加</button>
+            <button onclick="window.location.href='{% url 'main_page' %}'">返回主页面</button>
+        </div>
+    </div>
 </body>
 </html>

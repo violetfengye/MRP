@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>MRP 记录</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>MPS记录</h1>
+    
+{% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+    
+    
+{% if mps_records %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>物料名称</th>
+                    <th>需求数量</th>
+                    <th>完工日期</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 遍历所有 MPS 记录 -->
+                {% for record in mps_records %}
+                    <tr>
+                        <td>{{ record.mps_id }}</td>
+                        <td>{{ record.material_name }}</td>
+                        <td>{{ record.required_quantity }}</td>
+                        <td>{{ record.due_date }}</td>
+                        <td>
+                            <form action="{% url 'delete_mps_record' record.mps_id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                    
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>没有找到 MPS 记录。</p>
+    {% endif %}
+
+</body>
+</html>

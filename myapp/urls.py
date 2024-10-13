@@ -7,6 +7,9 @@ urlpatterns = [
     path('mps_input/', views.mps_input, name='mps_input'),  # 输入 MPS 页面
     path('mps_success', views.mps_success, name='mps_success'),
     path('mrp_query/', views.mrp_query, name='mrp_query'),  # For MRP Query
-    path('mrp_results/<int:mps_id>/', views.mrp_results, name='mrp_results'),  # 路由中需要 <int:mps_id>
+    path('mrp_results/<str:mps_ids>/', views.mrp_results, name='mrp_results'),
+    path('mps_display', views.mps_display, name='mps_display'),
+    path('delete_mps/<int:mps_id>/', views.delete_mps_record, name='delete_mps_record'),
+
     # Add other paths as necessary
 ]
