@@ -50,6 +50,12 @@ def mrp_results(request, mps_id):
         return render(request, 'mrp_query.html', {'error': 'MPS 记录未找到'})
 
 
+# 定义一个排序函数，判断是否有子物料
+def has_child_material(allo_record):
+    # 检查中是否有该物料的子物料
+    return AllocationComposition.objects.filter(parent_material_name=allo_record.child_material_name).exists()
+
+
 # 假设这个字典将保存所有的库存信息
 allinventories = {}
 
@@ -136,6 +142,8 @@ def calculate_material_requirements(material, required_quantity, due_date):
         'start_date': start_date,
         'completion_date': completion_date
     })
+
+    allo_records = sorted(allo_records, key=lambda x: not has_child_material(x))
 
     for allo in allo_records:
         child_material = allo.child_material_code
