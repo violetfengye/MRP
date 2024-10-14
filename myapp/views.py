@@ -9,7 +9,6 @@ from collections import defaultdict
 
 
 def main_page(request):
-    # Render the main page template with buttons
     return render(request, 'main_page.html')
 
 
@@ -49,8 +48,16 @@ def mrp_query(request):
     mps_records = MPSRecord.objects.all()  # 获取所有 MPS 记录
     if request.method == 'POST':
         mps_ids = request.POST.getlist('mps_ids')  # 获取多个 MPS ID
+
+        if not mps_ids:
+            return redirect('error')  # 如果为空，跳转到错误页面
+
         return redirect('mrp_results', mps_ids=','.join(mps_ids))  # 将多个 ID 以逗号分隔传递
     return render(request, 'mrp_query.html', {'mps_records': mps_records})
+
+
+def error(request):
+    return render(request, 'error.html')
 
 
 # 处理 MRP 计算并显示结果的视图
@@ -219,5 +226,3 @@ def delete_inventory(request, inventory_id):
         inventory.delete()
         messages.success(request, f'库存 {inventory.material_name} 已删除成功！')
         return redirect('warehouse_view')  # 重定向回到库存查看页面
-
-
