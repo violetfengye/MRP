@@ -75,6 +75,7 @@ class MPSRecord(models.Model):
         return f"MPS: {self.mps_id} - {self.material_name} - {self.due_date}"
 
 
+# 资产负债表模型
 class BalanceSheet(models.Model):
     bs_id = models.IntegerField(verbose_name="序号")
     bs_toid = models.IntegerField(verbose_name="资产类汇总序号")

@@ -14,5 +14,6 @@ class MPSRecordForm(forms.ModelForm):
         fields = ['mps_id', 'material_name', 'required_quantity', 'due_date']  # 表单包含的字段
 
 
+# 定义 BSVarForm 表单类
 class BSVarForm(forms.Form):
     bs_var = forms.CharField(label='输入变量名', max_length=100)

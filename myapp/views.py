@@ -1,5 +1,4 @@
 import math
-import string
 
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
@@ -10,6 +9,7 @@ from .forms import MPSRecordForm, BSVarForm
 from collections import defaultdict
 
 
+# 主界面视图
 def main_page(request):
     return render(request, 'main_page.html')
 
@@ -27,16 +27,18 @@ def mps_input(request):
     return render(request, 'mps_input.html', {'form': form})
 
 
+# MPS 成功页面视图
 def mps_success(request):
-    # MPS 成功页面视图
     return render(request, 'mps_success.html')
 
 
+# mps记录展示视图
 def mps_display(request):
     all_mps_records = MPSRecord.objects.all()
     return render(request, 'mps_display.html', {'mps_records': all_mps_records})
 
 
+# mps记录删除视图
 def delete_mps_record(request, mps_id):
     mps_record = get_object_or_404(MPSRecord, mps_id=mps_id)
     if request.method == 'POST':
@@ -58,6 +60,7 @@ def mrp_query(request):
     return render(request, 'mrp_query.html', {'mps_records': mps_records})
 
 
+# 错误视图
 def error(request):
     return render(request, 'error.html')
 
@@ -188,11 +191,13 @@ def calculate_material_requirements(material, required_quantity, due_date):
     return material_mrp_results
 
 
+# 库存展示视图
 def inventories_display(request):
     allinventories = Inventory.objects.all()
     return render(request, 'inventories_display.html', {'allinventories': allinventories})
 
 
+# 更新库存的视图
 def update_inventory(request, inventory_id):
     inventory = get_object_or_404(Inventory, material_name=inventory_id)
 
@@ -220,6 +225,7 @@ def update_inventory(request, inventory_id):
     return render(request, 'inventories_display.html', {'inventory': inventory})
 
 
+# 资产负债表展示的视图
 def bs_display(request):
     balancesheets = BalanceSheet.objects.all()
     calculation_result = None
@@ -238,6 +244,7 @@ def bs_display(request):
     })
 
 
+# 资产负债的计算逻辑
 def bs_var_cal(bs_var):
     balancesheet = BalanceSheet.objects.get(bs_var=bs_var)
     allbalancesheet = BalanceSheet.objects.all()
@@ -251,4 +258,3 @@ def bs_var_cal(bs_var):
         return ans
     else:
         return f"变量 {bs_var} 没有相关公式"
-
