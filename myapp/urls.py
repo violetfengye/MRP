@@ -13,5 +13,7 @@ urlpatterns = [
     path('inventories_display', views.inventories_display, name='inventories_display'),  # 查看仓库
     path('update_inventory/<str:inventory_id>/', views.update_inventory, name='update_inventory'),  # 更新仓库
     path('error/', views.error, name='error'),  # 错误界面
+    path('bs_display/', views.bs_display, name='bs_display'),  # 资产负债表展示
+
     # Add other paths as necessary
 ]

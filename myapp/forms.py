@@ -12,3 +12,7 @@ class MPSRecordForm(forms.ModelForm):
     class Meta:
         model = MPSRecord  # 指定对应的模型为 MPSRecord
         fields = ['mps_id', 'material_name', 'required_quantity', 'due_date']  # 表单包含的字段
+
+
+class BSVarForm(forms.Form):
+    bs_var = forms.CharField(label='输入变量名', max_length=100)

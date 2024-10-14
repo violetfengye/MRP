@@ -1,10 +1,12 @@
 import math
+import string
+
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .models import *
 from datetime import timedelta
-from .forms import MPSRecordForm
+from .forms import MPSRecordForm, BSVarForm
 from collections import defaultdict
 
 
@@ -218,11 +220,35 @@ def update_inventory(request, inventory_id):
     return render(request, 'inventories_display.html', {'inventory': inventory})
 
 
-def delete_inventory(request, inventory_id):
-    # 获取要删除的库存记录
-    inventory = get_object_or_404(Inventory, id=inventory_id)
+def bs_display(request):
+    balancesheets = BalanceSheet.objects.all()
+    calculation_result = None
 
-    if request.method == 'GET':
-        inventory.delete()
-        messages.success(request, f'库存 {inventory.material_name} 已删除成功！')
-        return redirect('warehouse_view')  # 重定向回到库存查看页面
+    if request.method == 'POST':
+        # 获取表单输入的变量名
+        bs_var = request.POST.get('item_name')
+        if bs_var:
+            # 调用计算函数
+            calculation_result = bs_var_cal(bs_var)
+
+    # 将 balancesheets 和 计算结果传递到模板中
+    return render(request, 'bs_display.html', {
+        'balancesheets': balancesheets,
+        'calculation_result': calculation_result,
+    })
+
+
+def bs_var_cal(bs_var):
+    balancesheet = BalanceSheet.objects.get(bs_var=bs_var)
+    allbalancesheet = BalanceSheet.objects.all()
+    ans = ""
+    ans += bs_var + ' = '
+    for bs in allbalancesheet:
+        if bs.bs_toid == balancesheet.bs_id:
+            ans += bs.bs_var + ' + '
+    if not bs_var == ans[:-3]:
+        ans = ans[:-2]
+        return ans
+    else:
+        return f"变量 {bs_var} 没有相关公式"
+

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>资产负债表</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <h1>资产负债表计算公式</h1>
+    </div>
+    
+    <!-- 显示资产负债表的表格 -->
+    {% if balancesheets %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>资产类汇总序号</th>
+                    <th>变量名</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for balancesheet in balancesheets %}
+                    <tr>
+                        <td>{{ balancesheet.bs_id }}</td>
+                        <td>{{ balancesheet.bs_toid }}</td>
+                        <td>{{ balancesheet.bs_var }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>无</p>
+    {% endif %}
+    
+    <!-- 添加计算入口 -->
+    <div style="margin-top: 20px;">
+        <h2>计算入口</h2>
+        <form method="POST" action="{% url 'bs_display' %}">
+            {% csrf_token %}
+            <label for="variable_name">输入变量名:</label>
+            <input type="text" id="variable_name" name="item_name" required>
+            <button type="submit">计算</button>
+        </form>
+    </div>
+
+    <!-- 显示计算结果 -->
+    {% if calculation_result %}
+        <div class="result">
+            <h3>计算结果：</h3>
+            <p>{{ calculation_result }}</p>
+        </div>
+    {% endif %}
+
+</body>
+</html>
