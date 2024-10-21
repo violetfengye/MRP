@@ -28,11 +28,6 @@
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #333;
-        }
     </style>
 </head>
 <body>
@@ -69,17 +64,21 @@
         <h2>计算入口</h2>
         <form method="POST" action="{% url 'bs_display' %}">
             {% csrf_token %}
-            <label for="variable_name">输入变量名:</label>
+            <label for="variable_name">输入变量名（多个用逗号分隔）:</label>
             <input type="text" id="variable_name" name="item_name" required>
             <button type="submit">计算</button>
         </form>
     </div>
 
     <!-- 显示计算结果 -->
-    {% if calculation_result %}
-        <div class="result">
-            <h3>计算结果：</h3>
-            <p>{{ calculation_result }}</p>
+    {% if calculation_results %}
+        <div style="margin-top: 20px;">
+            <h2>计算结果</h2>
+            <pre>
+                {% for result in calculation_results %}
+                    {{ result }}
+                {% endfor %}
+            </pre>
         </div>
     {% endif %}
 

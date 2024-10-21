@@ -228,19 +228,24 @@ def update_inventory(request, inventory_id):
 # 资产负债表展示的视图
 def bs_display(request):
     balancesheets = BalanceSheet.objects.all()
-    calculation_result = None
+    calculation_results = []  # 用于存储多个计算结果
 
     if request.method == 'POST':
         # 获取表单输入的变量名
-        bs_var = request.POST.get('item_name')
-        if bs_var:
-            # 调用计算函数
-            calculation_result = bs_var_cal(bs_var)
+        bs_vars = request.POST.get('item_name')
+        if bs_vars:
+            # 将输入的变量名按逗号分割
+            bs_var_list = bs_vars.split(',')
+            # 遍历每个变量名，调用计算函数
+            for bs_var in bs_var_list:
+                bs_var = bs_var.strip()  # 去掉前后的空格
+                calculation_result = bs_var_cal(bs_var)
+                calculation_results.append(f'{bs_var}: {calculation_result}')
 
-    # 将 balancesheets 和 计算结果传递到模板中
+    # 将 balancesheets 和多个计算结果传递到模板中
     return render(request, 'bs_display.html', {
         'balancesheets': balancesheets,
-        'calculation_result': calculation_result,
+        'calculation_results': calculation_results,  # 传递多个结果
     })
 
 
