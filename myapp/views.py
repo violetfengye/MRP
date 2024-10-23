@@ -1,5 +1,5 @@
 import math
-
+import heapq
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
@@ -63,132 +63,6 @@ def mrp_query(request):
 # 错误视图
 def error(request):
     return render(request, 'error.html')
-
-
-# 处理 MRP 计算并显示结果的视图
-def mrp_results(request, mps_ids):
-    # 将多个 MPS IDs 解析成一个列表
-    mps_ids_list = mps_ids.split(',')
-
-    # 获取所有选中的 MPS 记录
-    mps_records = MPSRecord.objects.filter(mps_id__in=mps_ids_list)
-
-    if not mps_records.exists():
-        return render(request, 'mrp_query.html', {'error': '未找到 MPS 记录'})
-
-    # 调用批量 MRP 计算函数，传递整个 mps_records 集合
-    all_mrp_results = calculate_mrp_for_multiple(mps_records)
-
-    # 渲染模板并显示所有 MRP 计算结果
-    return render(request, 'mrp_results.html', {'all_mrp_results': all_mrp_results})
-
-
-# 定义一个排序函数，判断是否有子物料
-def has_child_material(allo_record):
-    # 检查中是否有该物料的子物料
-    return AllocationComposition.objects.filter(parent_material_name=allo_record.child_material_name).exists()
-
-
-# 假设这个字典将保存所有的库存信息
-allinventories = {}
-
-
-# 从数据库中加载所有库存信息到字典
-def load_all_inventory():
-    inventories = Inventory.objects.all()
-    for inv in inventories:
-        total_inventory = inv.workshop_inventory + inv.material_inventory
-        allinventories[inv.material_code] = total_inventory
-
-
-# MRP 计算函数
-def calculate_mrp_for_multiple(mps_records):
-    allinventories.clear()  # 清空缓存
-    load_all_inventory()  # 加载库存
-
-    all_mrp_results = []  # 存储所有 MPS 记录的 MRP 结果
-
-    # 对 mps_records 按开始时间排序
-    mps_records_sorted = sorted(mps_records, key=lambda x: x.due_date)
-
-    for mps_record in mps_records_sorted:
-        try:
-            # 执行MRP计算
-            mrp_results = calculate_material_requirements(mps_record.material_name, mps_record.required_quantity,
-                                                          mps_record.due_date)
-            all_mrp_results.append({
-                'mps_id': mps_record.mps_id,
-                'mrp_results': mrp_results
-            })
-        except Exception as e:
-            print(f"Error calculating MRP for MPS ID {mps_record.mps_id}: {e}")
-            continue
-
-    allinventories.clear()  # 清空缓存
-    return all_mrp_results
-
-
-# 需求计算函数，使用已经加载的 allinventories 字典
-def calculate_material_requirements(material, required_quantity, due_date):
-    material_mrp_results = []
-    allo_records = AllocationComposition.objects.filter(parent_material_name=material.name)
-
-    if not allo_records.exists():
-        current_inventory = allinventories.get(material, 0)
-
-        if current_inventory:
-            if current_inventory > required_quantity:
-                allinventories[material] -= required_quantity
-                required_quantity = 0
-            else:
-                required_quantity -= current_inventory
-                allinventories[material] = 0
-
-        if material.allocation_method == '生产':
-            completion_date = due_date
-            start_date = completion_date - timedelta(days=material.lead_time)
-        elif material.allocation_method == '采购':
-            completion_date = due_date
-            allo_material = AllocationComposition.objects.filter(child_material_name=material.name).first()
-            start_date = completion_date - timedelta(
-                days=material.lead_time + allo_material.allocation_lead_time + allo_material.supplier_lead_time)
-
-        material_mrp_results.append({
-            'allocation_method': material.allocation_method,
-            'material_code': material.material_id,
-            'material_name': material.name,
-            'required_quantity': required_quantity,
-            'start_date': start_date,
-            'completion_date': completion_date
-        })
-
-        return material_mrp_results
-
-    completion_date = due_date
-    start_date = completion_date - timedelta(days=material.lead_time)
-
-    material_mrp_results.append({
-        'allocation_method': material.allocation_method,
-        'material_code': material.material_id,
-        'material_name': material.name,
-        'required_quantity': required_quantity,
-        'start_date': start_date,
-        'completion_date': completion_date
-    })
-
-    allo_records = sorted(allo_records, key=lambda x: not has_child_material(x))
-
-    for allo in allo_records:
-        child_material = allo.child_material_code
-        child_quantity = allo.quantity
-        required_child_quantity = math.ceil(required_quantity * child_quantity / (1 - child_material.loss_rate))
-
-        child_material_mrp_results = calculate_material_requirements(child_material, required_child_quantity,
-                                                                     start_date)
-
-        material_mrp_results.extend(child_material_mrp_results)
-
-    return material_mrp_results
 
 
 # 库存展示视图
@@ -263,3 +137,188 @@ def bs_var_cal(bs_var):
         return ans
     else:
         return f"变量 {bs_var} 没有相关公式"
+
+# 处理 MRP 计算并显示结果的视图
+def mrp_results(request, mps_ids):
+    # 将多个 MPS IDs 解析成一个列表
+    mps_ids_list = mps_ids.split(',')
+
+    # 获取所有选中的 MPS 记录
+    mps_records = MPSRecord.objects.filter(mps_id__in=mps_ids_list)
+
+    if not mps_records.exists():
+        return render(request, 'mrp_query.html', {'error': '未找到 MPS 记录'})
+
+    # 调用批量 MRP 计算函数，传递整个 mps_records 集合
+    all_mrp_results = calculate_mrp_for_multiple(mps_records)
+
+    # 渲染模板并显示所有 MRP 计算结果
+    return render(request, 'mrp_results.html', {'all_mrp_results': all_mrp_results})
+
+
+# 假设这个字典将保存所有的库存信息
+allinventories = {}
+
+cnt = 0
+
+# 从数据库中加载所有库存信息到字典
+def load_all_inventory():
+    inventories = Inventory.objects.all()
+    for inv in inventories:
+        total_inventory = inv.workshop_inventory + inv.material_inventory
+        allinventories[inv.material_code] = total_inventory
+
+
+# MRP 计算函数
+def calculate_mrp_for_multiple(mps_records):
+    load_all_inventory()  # 加载库存
+    global cnt
+    all_mrp_results = []  # 存储所有 MPS 记录的 MRP 结果
+
+    for mps_record in mps_records:
+        try:
+            # 执行MRP计算
+            mrp_results = calculate_material_requirements(mps_record.material_name, mps_record.required_quantity,
+                                                          mps_record.due_date)
+            all_mrp_results.extend(mrp_results)
+        except Exception as e:
+            print(f"Error calculating MRP for MPS ID {mps_record.mps_id}: {e}")
+            continue
+    all_mrp_results_final = adjust_requirements_optimized(all_mrp_results,allinventories)
+    # print(all_mrp_results_final)
+    allinventories.clear()  # 清空缓存
+    cnt = 0
+    return all_mrp_results_final
+
+
+# 初始需求计算函数，使用已经加载的 allinventories 字典
+def calculate_material_requirements(material, required_quantity, due_date, father_id=-1,father_name=None):
+    global cnt
+    material_mrp_results = []
+    allo_records = AllocationComposition.objects.filter(parent_material_name=material.name)
+
+    # 只有采购才没有子物料
+    if not allo_records.exists():
+        completion_date = due_date
+        allo_material = AllocationComposition.objects.filter(child_material_name=material.name).first()
+        start_date = completion_date - timedelta(
+                days=material.lead_time + allo_material.allocation_lead_time + allo_material.supplier_lead_time)
+
+        cnt += 1
+        material_mrp_results.append({
+            'allocation_method': material.allocation_method,
+            'material_code': material.material_id,
+            'material_name': material.name,
+            'required_quantity': required_quantity,
+            'start_date': start_date,
+            'completion_date': completion_date,
+            'mid':cnt,
+            'father_id': father_id,
+            'father_name': father_name,
+        })
+
+
+        return material_mrp_results
+
+    completion_date = due_date
+    start_date = completion_date - timedelta(days=material.lead_time)
+
+    material_mrp_results.append({
+        'allocation_method': material.allocation_method,
+        'material_code': material.material_id,
+        'material_name': material.name,
+        'required_quantity': required_quantity,
+        'start_date': start_date,
+        'completion_date': completion_date,
+        'mid':cnt,
+        'father_id': father_id,
+        'father_name': father_name,
+    })
+
+    father_id = cnt
+    father_name = material.name
+
+    for allo in allo_records:
+        child_material = allo.child_material_code
+        child_quantity = allo.quantity
+        required_child_quantity = math.ceil(required_quantity * child_quantity / (1 - child_material.loss_rate))
+        child_material_mrp_results = calculate_material_requirements(child_material, required_child_quantity,
+                                                                     start_date,father_id,father_name)
+
+        material_mrp_results.extend(child_material_mrp_results)
+
+    return material_mrp_results
+
+
+def adjust_requirements_optimized(all_mrp_results, all_inventories):
+
+    # 初始化物料库存表
+    inventory_map = {material.name: inventory for material, inventory in all_inventories.items()}
+
+    # 初始化哈希表，存储物料是否已更新需求
+    material_status = {result['mid']: False for result in all_mrp_results}
+    changes = {result['mid']: 0 for result in all_mrp_results}
+
+    # 初始化物料需求表和优先队列，按start_date排序需求
+    priority_queue = []
+    for result in all_mrp_results:
+        heapq.heappush(priority_queue, (result['start_date'], result['mid'], result))
+
+
+    # 逐步处理需求
+    while priority_queue:
+        start_date, mid, current_need = heapq.heappop(priority_queue)
+        mid = current_need['mid']
+        father_id = current_need['father_id']
+        material_name = current_need['material_name']
+        required_quantity = current_need['required_quantity']
+
+        # 从库存中扣除需求量
+        if material_name in inventory_map and inventory_map[material_name] > 0:
+            available_inventory = inventory_map[material_name]
+            print(available_inventory)
+            if available_inventory >= required_quantity:
+                inventory_map[material_name] -= required_quantity
+                changes[mid] = required_quantity
+                material_status[mid] = True  # 需求已更新
+                current_need['required_quantity'] = 0  # 需求满足
+
+            else:
+                current_need['required_quantity'] -= available_inventory
+                changes[mid] = available_inventory
+                inventory_map[material_name] = 0  # 库存耗尽
+                if father_id==-1:
+                    material_status[mid] = True  # 需求已更新
+
+        else:
+            # 如果没有父物料或者父物料已经更新过了而且库存中没有该数据剩余则该数据已为最终结果
+            if father_id==-1 or material_status[father_id]:
+                material_status[mid] = True
+
+    while not all(material_status.values()):
+        for result in all_mrp_results:
+            mid = result['mid']
+            if material_status[mid]:
+                continue
+            father_id = result['father_id']
+            child_quantity = AllocationComposition.objects.get(child_material_name=result['material_name'],parent_material_name=result['father_name']).quantity
+            loss_rate = Material.objects.get(name=result['material_name']).loss_rate
+            result['required_quantity'] -= math.ceil(changes[father_id] * child_quantity / (1 - loss_rate))
+            material_status[mid] = True
+
+    return all_mrp_results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

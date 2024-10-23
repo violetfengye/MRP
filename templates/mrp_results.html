@@ -52,17 +52,16 @@
                 </tr>
             </thead>
             <tbody>
-            {% for result in all_mrp_results %}
-                {% for item in result.mrp_results %}
-                <tr>
-                    <td>{{ item.material_code }}</td>
-                    <td>{{ item.material_name }}</td>
-                    <td>{{ item.required_quantity }}</td>
-                    <td>{{ item.start_date|date:"Y-m-d" }}</td>
-                    <td>{{ item.completion_date|date:"Y-m-d" }}</td>
-                </tr>
-                {% endfor %}
-            {% endfor %}
+          {% for item in all_mrp_results %}
+              <tr>
+                <td>{{ item.material_code }}</td>
+                <td>{{ item.material_name }}</td>
+                <td>{{ item.required_quantity }}</td>
+                <td>{{ item.start_date|date:"Y-m-d" }}</td>
+                <td>{{ item.completion_date|date:"Y-m-d" }}</td>
+              </tr>
+          {% endfor %}
+
             </tbody>
         </table>
 
