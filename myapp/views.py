@@ -1,12 +1,10 @@
-import math
 import heapq
+import math
+from datetime import timedelta
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from .forms import MPSRecordForm
 from .models import *
-from datetime import timedelta
-from .forms import MPSRecordForm, BSVarForm
-from collections import defaultdict
 
 
 # 主界面视图
@@ -249,7 +247,7 @@ def calculate_material_requirements(material, required_quantity, due_date, fathe
 
     return material_mrp_results
 
-
+# 调整需求量
 def adjust_requirements_optimized(all_mrp_results, all_inventories):
 
     # 初始化物料库存表
@@ -257,13 +255,13 @@ def adjust_requirements_optimized(all_mrp_results, all_inventories):
 
     # 初始化哈希表，存储物料是否已更新需求
     material_status = {result['mid']: False for result in all_mrp_results}
+    # 创建一个记录变化的表
     changes = {result['mid']: 0 for result in all_mrp_results}
 
     # 初始化物料需求表和优先队列，按start_date排序需求
     priority_queue = []
     for result in all_mrp_results:
         heapq.heappush(priority_queue, (result['start_date'], result['mid'], result))
-
 
     # 逐步处理需求
     while priority_queue:
@@ -280,20 +278,17 @@ def adjust_requirements_optimized(all_mrp_results, all_inventories):
             if available_inventory >= required_quantity:
                 inventory_map[material_name] -= required_quantity
                 changes[mid] = required_quantity
-                material_status[mid] = True  # 需求已更新
                 current_need['required_quantity'] = 0  # 需求满足
+                material_status[mid] = True  # 需求已更新
 
             else:
                 current_need['required_quantity'] -= available_inventory
                 changes[mid] = available_inventory
                 inventory_map[material_name] = 0  # 库存耗尽
-                if father_id==-1:
-                    material_status[mid] = True  # 需求已更新
 
-        else:
-            # 如果没有父物料或者父物料已经更新过了而且库存中没有该数据剩余则该数据已为最终结果
-            if father_id==-1 or material_status[father_id]:
-                material_status[mid] = True
+        # 如果没有父物料或者父物料已经更新过了而且没有发生变化则该数据已为最终结果
+        if father_id == -1 or (material_status[mid] == True and changes[father_id] == 0):
+            material_status[mid] = True
 
     while not all(material_status.values()):
         for result in all_mrp_results:
