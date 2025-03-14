@@ -79,8 +79,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'my_django_db',
         'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',  # 或你的 MySQL 服务器地址
+        'PASSWORD': 'Hetp998926',
+        'HOST': 'sh-cynosdbmysql-grp-7lmz6kqm.sql.tencentcdb.com:23764',  # 或你的 MySQL 服务器地址
         'PORT': '3306',  # MySQL 的默认端口是 3306
     }
 }
